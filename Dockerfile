@@ -10,17 +10,15 @@ RUN apt-get update && apt-get install -y \
 # Download and install ARM Embedded Toolchain
 ARG TARGETPLATFORM
 RUN case "${TARGETPLATFORM}" in \
-      linux/amd64) TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.2.Rel1/binrel/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi.tar.xz" ;; \
-      linux/arm64) TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.2.Rel1/binrel/arm-gnu-toolchain-13.2.Rel1-aarch64-arm-none-eabi.tar.xz" ;; \
+      linux/amd64) TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz" && ARCH="x86_64" ;; \
+      linux/arm64) TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-aarch64-arm-none-eabi.tar.xz" && ARCH="aarch64" ;; \
       *) echo "Unsupported platform: ${TARGETPLATFORM}" && exit 1 ;; \
     esac && \
     wget -q ${TOOLCHAIN_URL} && \
     tar xf $(basename ${TOOLCHAIN_URL}) -C /opt && \
-    rm $(basename ${TOOLCHAIN_URL})
+    rm $(basename ${TOOLCHAIN_URL}) && \
+    echo "export PATH=/opt/arm-gnu-toolchain-13.2.rel1-${ARCH}-arm-none-eabi/bin:\$PATH" >> /etc/bash.bashrc
 
-# Add toolchain to PATH
-ENV PATH="/opt/arm-gnu-toolchain-13.2.Rel1-$(uname -m)-arm-none-eabi/bin:${PATH}"
-
-RUN env
 # Verify installation
-RUN arm-none-eabi-gcc --version
+SHELL ["/bin/bash", "-c"]
+RUN source /etc/bash.bashrc && arm-none-eabi-gcc --version
