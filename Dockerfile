@@ -21,5 +21,6 @@ RUN case "${TARGETPLATFORM}" in \
 # Add toolchain to PATH
 ENV PATH="/opt/arm-gnu-toolchain-13.2.Rel1-$(uname -m)-arm-none-eabi/bin:${PATH}"
 
+RUN env
 # Verify installation
 RUN arm-none-eabi-gcc --version
